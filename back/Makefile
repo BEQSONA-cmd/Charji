@@ -1,0 +1,25 @@
+NAME =  server
+CXX = c++ 
+
+SRC = $(wildcard *.cpp) \
+
+OBJ = $(SRC:.cpp=.o)
+
+LUMO_LIB = Lumo/liblumo.a
+
+all: $(NAME)
+
+$(NAME): $(OBJ)
+	make -j$(nproc) -C Lumo
+	$(CXX) $(OBJ) -o $(NAME) $(LUMO_LIB) -lssl -lcrypto -lcurl
+
+clean:
+	rm -rf $(OBJ)
+
+fclean: clean
+	make fclean -C Lumo
+	rm -rf $(NAME)
+
+re: clean all
+
+.PHONY: all clean fclean re

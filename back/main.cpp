@@ -2,6 +2,42 @@
 
 std::vector<WebSocket> chatClients;
 
+void streamCallbackFunction(const std::string &chunk, WebSocket ws)
+{
+    std::stringstream localStream(chunk);
+
+    std::string line;
+
+    while (std::getline(localStream, line))
+    {
+        if (line.rfind("data: ", 0) == 0)
+        {
+            std::string jsonPart = line.substr(6);
+
+            if (jsonPart == "[DONE]")
+            {
+                return;
+            }
+
+            try
+            {
+                auto json = nlohmann::json::parse(jsonPart);
+
+                auto &delta = json["choices"][0]["delta"];
+
+                if (delta.contains("content"))
+                {
+                    std::string content = delta["content"];
+                    ws->sendPayload(content);
+                }
+            }
+            catch (...)
+            {
+            }
+        }
+    }
+}
+
 void chat(WebSocket ws)
 {
     chatClients.push_back(ws);
@@ -33,40 +69,9 @@ void chat(WebSocket ws)
                                 {"stream", true}
                             }
                         ).dump(),
-                        .streamCallback = [ws](const std::string &chunk) {
-                            std::stringstream localStream(chunk);
-
-                            std::string line;
-
-                            while (std::getline(localStream, line))
-                            {
-                                if (line.rfind("data: ", 0) == 0)
-                                {
-                                    std::string jsonPart = line.substr(6);
-
-                                    if (jsonPart == "[DONE]")
-                                    {
-                                        return;
-                                    }
-
-                                    try
-                                    {
-                                        auto json = nlohmann::json::parse(jsonPart);
-
-                                        auto &delta = json["choices"][0]["delta"];
-
-                                        if (delta.contains("content"))
-                                        {
-                                            std::string content = delta["content"];
-                                            ws->sendPayload(content);
-                                        }
-                                    }
-                                    catch (...)
-                                    {
-                                    }
-                                }
-                            }
-                    }
+                        .streamCallback = [ws](const std::string &chunk){
+                            streamCallbackFunction(chunk, ws);
+                        }
                 });
                 }
             }

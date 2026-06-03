@@ -5,7 +5,6 @@ std::vector<WebSocket> chatClients;
 void streamCallbackFunction(const std::string &chunk, WebSocket ws)
 {
     std::stringstream localStream(chunk);
-
     std::string line;
 
     while (std::getline(localStream, line))
@@ -15,14 +14,11 @@ void streamCallbackFunction(const std::string &chunk, WebSocket ws)
             std::string jsonPart = line.substr(6);
 
             if (jsonPart == "[DONE]")
-            {
                 return;
-            }
 
             try
             {
-                auto json = nlohmann::json::parse(jsonPart);
-
+                auto json = json::parse(jsonPart);
                 auto &delta = json["choices"][0]["delta"];
 
                 if (delta.contains("content"))
@@ -31,9 +27,7 @@ void streamCallbackFunction(const std::string &chunk, WebSocket ws)
                     ws->sendPayload(content);
                 }
             }
-            catch (...)
-            {
-            }
+            catch (...){}
         }
     }
 }

@@ -84,7 +84,6 @@ int main()
     Lumo server("0.0.0.0", 8080);
     server.allowOrigins({"http://localhost:3000"});
 
-    // route for testing plain string response
     server.registerWebSocketRoute(chat, "/chat");
 
     server.start();

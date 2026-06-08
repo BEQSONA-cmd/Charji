@@ -45,7 +45,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
             handleInput();
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Transmit message..."
+          placeholder="დაწერეთ შეტყობინება..."
           disabled={disabled}
           rows={1}
           className="flex-1 bg-transparent border-none outline-none text-white/80 placeholder-white/20 resize-none px-4 py-3 text-sm max-h-32"

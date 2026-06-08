@@ -33,8 +33,8 @@ export default function ChatContainer() {
                 </div>
               </div>
               <div>
-                <h1 className="text-xl font-light tracking-wider text-white/90">CHARGI</h1>
-                <p className="text-xs text-purple-400/60 tracking-widest uppercase">Neural Interface</p>
+                <h1 className="text-xl font-light tracking-wider text-white/90">ჩარჯი</h1>
+                <p className="text-xs text-purple-400/60 tracking-widest uppercase">ნეირონული ინტერფეისი</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -57,29 +57,8 @@ export default function ChatContainer() {
               </div>
               
               <div className="space-y-2 text-center mb-12">
-                <p className="text-2xl font-light text-white/80 tracking-wide">Initialize Conversation</p>
-                <p className="text-sm text-purple-400/40">Neural link established. Ready for queries.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-lg">
-                {[
-                  { text: "Quantum Analysis", icon: "⚛️" },
-                  { text: "Code Synthesis", icon: "⚡" },
-                  { text: "Data Stream", icon: "🌊" },
-                  { text: "Neural Query", icon: "🧠" }
-                ].map(({ text, icon }) => (
-                  <button
-                    key={text}
-                    onClick={() => sendUserMessage(text)}
-                    className="group relative p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.05] hover:border-purple-500/20 transition-all duration-500 text-left"
-                  >
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-blue-500/0 group-hover:from-purple-500/5 group-hover:to-blue-500/5 transition-all duration-500" />
-                    <div className="relative flex items-center gap-3">
-                      <span className="text-lg">{icon}</span>
-                      <span className="text-sm text-white/50 group-hover:text-white/80 transition-colors">{text}</span>
-                    </div>
-                  </button>
-                ))}
+                <p className="text-2xl font-light text-white/80 tracking-wide">დაიწყეთ საუბარი</p>
+                <p className="text-sm text-purple-400/40">ნეირონული ბმა დამყარებულია. მზად ვარ კითხვებისთვის.</p>
               </div>
             </div>
           )}

@@ -38,7 +38,7 @@ export default function ChatContainer() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-purple-400/60">v2.0</span>
+              <span className="text-xs text-purple-400/60">v1.1</span>
               <div className="w-1 h-1 bg-purple-400 rounded-full animate-pulse" />
             </div>
           </div>

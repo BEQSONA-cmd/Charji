@@ -3,12 +3,15 @@ import { useWebSocket } from './useWebSocket';
 import { Message } from '@/types/chat';
 import { generateId } from '@/lib/utils';
 
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/chat';
+
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentBotMessage, setCurrentBotMessage] = useState('');
-  const { sendMessage, onMessage } = useWebSocket('ws://localhost:8080/chat');
+  const { sendMessage, onMessage } = useWebSocket(WS_URL);
 
   useEffect(() => {
+    console.log(WS_URL);
     const unsubscribe = onMessage((data) => {
       setCurrentBotMessage((prev) => prev + data);
     });

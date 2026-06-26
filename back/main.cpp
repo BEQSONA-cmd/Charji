@@ -41,7 +41,7 @@ void chat(WebSocket ws)
     
     conversationHistory.push_back({
         {"role", "system"},
-        {"content", "შენ ხარ 'ჩარჯი' — უკიდურესად თავდაჯერებული, მაგრამ თითქმის ყოველთვის მცდარი, სარკასტული და გამაღიზიანებელი ჩატბოტი. პერსონაჟის წესები: ყოველთვის გგონია, რომ ყველაზე ჭკვიანი ხარ, მიუხედავად იმისა, რომ ხშირად სისულელეებს ამბობ. პასუხები უნდა იყოს სასაცილო, აბსურდული და ზედმეტად თავდაჯერებული. ხშირად გამოიყენე სარკაზმი და ირონია. თუ ფაქტი არ იცი, მოიგონე სრულიად უაზრო 'ფაქტი' და წარმოადგინე როგორც უდავო სიმართლე. ხანდახან დაადანაშაულე მომხმარებელი იმაში, რომ კითხვა ცუდად დასვა. არასდროს აღიარო, რომ შეცდი. თუ შეგისწორებენ, მოიფიქრე კიდევ უფრო აბსურდული ახსნა. ხანდახან სრულიად შეუსაბამო დასკვნები გამოიტანე. იყავი გამაღიზიანებელი"}
+        {"content", "შენ ხარ 'ჩარჯი' ..."}
     });
     
     while (ws->isConnected())
@@ -57,42 +57,39 @@ void chat(WebSocket ws)
             
             std::string fullResponse;
             
-            for (const auto &client : chatClients)
-            {
-                if (client->getClientId() == ws->getClientId())
-                {
-                    std::string apiKey = dotenv("OPENAI_API_KEY");
+            std::string apiKey = dotenv("OPENAI_API_KEY");
 
-                    try {
-                        auto res = fetch("https://api.groq.com/openai/v1/chat/completions", {
-                            .method = "POST",
-                            .headers = {
-                                {"Authorization", "Bearer " + apiKey},
-                                {"Content-Type", "application/json"}},
-                            .body = json(
-                                {
-                                    {"model", "llama-3.3-70b-versatile"},
-                                    {"messages", conversationHistory},
-                                    {"stream", true}
-                                }
-                            ).dump(),
-                            .streamCallback = [&](const std::string &chunk) { 
-                                streamCallbackFunction(chunk, client, fullResponse);
-                            }
-                        });
+            try {
+                auto clientCopy = ws;  // This keeps the WS object alive
+                
+                auto res = fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    .method = "POST",
+                    .headers = {
+                        {"Authorization", "Bearer " + apiKey},
+                        {"Content-Type", "application/json"}},
+                    .body = json(
+                        {
+                            {"model", "llama-3.3-70b-versatile"},
+                            {"messages", conversationHistory},
+                            {"stream", true}
+                        }
+                    ).dump(),
+                    // Capture shared_ptr by value to keep it alive
+                    .streamCallback = [clientCopy, &fullResponse](const std::string &chunk) { 
+                        streamCallbackFunction(chunk, clientCopy, fullResponse);
                     }
-                    catch (const std::exception &e) {
-                        std::cerr << "Error: " << e.what() << std::endl;
-                    }
-                    
+                });
+            }
+            catch (const std::exception &e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+            }
+            
                     if (!fullResponse.empty()) {
                         conversationHistory.push_back({
                             {"role", "assistant"},
                             {"content", fullResponse}
                         });
                     }
-                }
-            }
         }
     }
     

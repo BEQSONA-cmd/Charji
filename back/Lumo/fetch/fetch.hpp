@@ -4,7 +4,6 @@
 #include <string>
 #include <map>
 #include <functional>
-#include <iostream>
 
 struct FetchResult
 {

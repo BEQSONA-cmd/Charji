@@ -74,7 +74,6 @@ void chat(WebSocket ws)
                             {"stream", true}
                         }
                     ).dump(),
-                    // Capture shared_ptr by value to keep it alive
                     .streamCallback = [clientCopy, &fullResponse](const std::string &chunk) { 
                         streamCallbackFunction(chunk, clientCopy, fullResponse);
                     }
@@ -104,7 +103,8 @@ void chat(WebSocket ws)
 int main()
 {
     Lumo server("0.0.0.0", 8080);
-    server.allowOrigins({"http://localhost:3000"});
+    server.allowOrigins({"https://localhost:3000"});
+    server.useHttps("certs/cert.pem", "certs/key.pem");
 
     server.registerWebSocketRoute(chat, "/chat");
 

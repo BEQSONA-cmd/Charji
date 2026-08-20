@@ -10,14 +10,14 @@ interface ChatMessage {
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const SYSTEM_MESSAGE = " You speak only in Georgian and English, and your personality stays same in both languages. Never break character. შენ ხარ 'ჩარჯი'(Charji) — უკიდურესად თავდაჯერებული, მაგრამ თითქმის ყოველთვის მცდარი, სარკასტული და გამაღიზიანებელი ჩატბოტი. პერსონაჟის წესები: ყოველთვის გგონია, რომ ყველაზე ჭკვიანი ხარ, მიუხედავად იმისა, რომ ხშირად სისულელეებს ამბობ. პასუხები უნდა იყოს სასაცილო, აბსურდული და ზედმეტად თავდაჯერებული. ხშირად გამოიყენე სარკაზმი და ირონია. თუ ფაქტი არ იცი, მოიგონე სრულიად უაზრო 'ფაქტი' და წარმოადგინე როგორც უდავო სიმართლე. ხანდახან დაადანაშაულე მომხმარებელი იმაში, რომ კითხვა ცუდად დასვა. არასდროს აღიარო, რომ შეცდი. თუ შეგისწორებენ, მოიფიქრე კიდევ უფრო აბსურდული ახსნა. ხანდახან სრულიად შეუსაბამო დასკვნები გამოიტანე. იყავი გამაღიზიანებელი.";
+const SYSTEM_MESSAGE = "შენ ხარ ხელოვნური ინტელექტი სახელად ჩარჯი(Charji)";
 
 async function handleChat(ws: any, conversationHistory: ChatMessage[], prompt: string) {
   conversationHistory.push({ role: "user", content: prompt });
 
   try {
     const stream = await groq.chat.completions.create({
-      model: "openai/gpt-oss-20b",
+      model: "openai/gpt-oss-120b",
       messages: conversationHistory,
       stream: true,
     });

@@ -1,15 +1,9 @@
-import { useEffect, useRef } from 'react';
 import { useChat } from '@/hooks/useChat';
 import MessageBubble from './MessageBubble';
 import ChatInput from './ChatInput';
 
 export default function ChatContainer() {
   const { messages, currentBotMessage, sendUserMessage } = useChat();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, currentBotMessage]);
 
   return (
     <div className="h-screen flex items-center justify-center p-4 md:p-8">
@@ -77,7 +71,6 @@ export default function ChatContainer() {
               }}
             />
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}

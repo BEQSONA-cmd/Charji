@@ -30,7 +30,7 @@ export function GET() {
       console.log("WEBSOCKET CLOSED");
     });
 
-    ws.on("error", (error) => {
+    ws.on("error", (error: Error) => {
       console.error("WEBSOCKET ERROR:", error);
     });
   });

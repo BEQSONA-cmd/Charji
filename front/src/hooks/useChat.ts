@@ -1,59 +1,92 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useWebSocket } from './useWebSocket';
 import { Message } from '@/types/chat';
 import { generateId } from '@/lib/utils';
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/chat';
+const WS_URL =
+  typeof window !== "undefined"
+    ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/api/ws`
+    : "";
+
+// const WS_URL = "ws://localhost:8080/chat";
 
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentBotMessage, setCurrentBotMessage] = useState('');
+  const currentBotMessageRef = useRef('');
+
   const { sendMessage, onMessage } = useWebSocket(WS_URL);
 
   useEffect(() => {
-    console.log(WS_URL);
-    const unsubscribe = onMessage((data) => {
-      setCurrentBotMessage((prev) => prev + data);
+    const unsubscribe = onMessage((raw) => {
+      try {
+        const message = JSON.parse(raw);
+
+        if (message.type === "token") {
+          currentBotMessageRef.current += message.content;
+          setCurrentBotMessage(currentBotMessageRef.current);
+        }
+
+        if (message.type === "done") {
+          const fullResponse = currentBotMessageRef.current;
+          if (fullResponse) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: generateId(),
+                type: "bot",
+                content: fullResponse,
+                timestamp: new Date(),
+              },
+            ]);
+          }
+          // Reset both state and ref
+          currentBotMessageRef.current = '';
+          setCurrentBotMessage('');
+        }
+
+        if (message.type === "error") {
+          console.error("WebSocket error:", message.message);
+        }
+      } catch (error) {
+        console.error("Invalid WebSocket message:", raw);
+      }
     });
+
     return unsubscribe;
   }, [onMessage]);
 
-  const sendUserMessage = useCallback((text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
+  const sendUserMessage = useCallback(
+    (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
 
-    // Save current bot message if exists
-    if (currentBotMessage) {
       setMessages((prev) => [
         ...prev,
         {
           id: generateId(),
-          type: 'bot',
-          content: currentBotMessage,
+          type: "user",
+          content: trimmed,
           timestamp: new Date(),
         },
       ]);
-    }
 
-    // Add user message
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: generateId(),
-        type: 'user',
-        content: trimmed,
-        timestamp: new Date(),
-      },
-    ]);
+      // Clear any previous streaming content
+      currentBotMessageRef.current = '';
+      setCurrentBotMessage('');
 
-    setCurrentBotMessage('');
-    sendMessage(trimmed);
-  }, [currentBotMessage, sendMessage]);
+      const sent = sendMessage(JSON.stringify({ type: "prompt", content: trimmed }));
+      if (!sent) {
+        console.error("WebSocket is not connected");
+      }
+    },
+    [sendMessage]
+  );
 
   return {
     messages,
     currentBotMessage,
     sendUserMessage,
-    isLoading: false, // You can add loading state logic
+    isLoading: false,
   };
 }

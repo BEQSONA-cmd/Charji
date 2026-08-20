@@ -8,8 +8,6 @@ const WS_URL =
     ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/api/ws`
     : "";
 
-// const WS_URL = "ws://localhost:8080/chat";
-
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentBotMessage, setCurrentBotMessage] = useState('');
